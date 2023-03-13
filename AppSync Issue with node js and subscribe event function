@@ -1,0 +1,31 @@
+Here are some steps you can follow to set up your subscription properly:
+Import the API and graphqlOperation modules from aws-amplify in your JavaScript file:
+
+import { API, graphqlOperation } from 'aws-amplify';
+Define the subscription query by creating a GraphQL subscription document using the gql tag function:
+
+const subscriptionQuery = gql`
+    subscription SubscribeToChannel($channelName: String!) {
+        subscribe(channelName: $channelName) {
+            data
+            name
+        }
+    }
+`;
+
+Use the API.graphql method to subscribe to the AppSync endpoint with the subscription query:
+
+const subscription = API.graphql(graphqlOperation(subscriptionQuery, { channelName: channelName })).subscribe({
+    next: (data) => {
+        console.log('New data received:', data);
+    },
+    error: (error) => {
+        console.error('Subscription error:', error);
+    }
+});
+
+In this code, the API.graphql method takes two arguments: the GraphQL subscription operation, and an object containing any variables needed for the subscription. 
+The subscribe method returns a subscription object that you can use to unsubscribe from the subscription when needed.
+
+
+
