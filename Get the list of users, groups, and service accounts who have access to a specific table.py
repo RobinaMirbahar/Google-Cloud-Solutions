@@ -1,37 +1,25 @@
 from google.cloud import bigquery
+from google.cloud.iam import Policy
 
-# Initialize a BigQuery client
+# Instantiate a client
 client = bigquery.Client()
 
-# Get a reference to the table you want to set access controls for
-table_ref = client.dataset('my_dataset').table('my_table')
-table = client.get_table(table_ref)
+# Get the IAM policy for a dataset
+dataset = client.get_dataset('my_project.my_dataset')
+policy = client.get_iam_policy(dataset.reference)
 
-# Set access controls for the table
-policy = bigquery.IAMPolicy()
-policy.viewers.add('user:viewer@example.com')
-policy.owners.add('user:owner@example.com')
-table.iam_policy = policy
-client.update_table(table, ['iam_policy'])
+# Add a new member to the policy
+policy.bindings.append(
+    Policy.Binding(
+        'roles/bigquery.dataViewer',
+        ['user:jane@example.com']
+    )
+)
+
+# Update the IAM policy for the dataset
+client.set_iam_policy(dataset.reference, policy)
 
 
 
-The IAMPolicy class was added in version 2.0.0 of the google-cloud-bigquery library. If you're using version 3.7.0 of the library, you should be able to use the bigquery.IAMPolicy class to set table access controls.
 
-Here's an updated example that should work with version 3.7.0
 
-from google.cloud import bigquery
-
-# Initialize a BigQuery client
-client = bigquery.Client()
-
-# Get a reference to the table you want to set access controls for
-table_ref = client.dataset('my_dataset').table('my_table')
-table = client.get_table(table_ref)
-
-# Set access controls for the table
-policy = bigquery.IAMPolicy()
-policy.viewers.add('user:viewer@example.com')
-policy.owners.add('user:owner@example.com')
-table._properties['access']['rows'] = policy
-client.update_table(table, ['access'])
